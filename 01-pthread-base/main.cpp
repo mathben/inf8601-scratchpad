@@ -1,8 +1,6 @@
 #include <QDebug>
 #include <pthread.h>
 
-
-
 void *routine(void *arg)
 {
     (void) arg;
