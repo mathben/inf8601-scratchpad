@@ -6,4 +6,5 @@ SUBDIRS += \
     03-pthread-recursive \
     04-pthread-max \
     05-pthread-pool \
-    06-pthread-image
+    06-pthread-image \
+    07-pthread-mutex
