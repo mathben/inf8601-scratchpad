@@ -20,7 +20,6 @@ int rand_range(int xmin, int xmax) {
 
 typedef struct work {
     int run;
-    pthread_rwlock_t rwlock;
     QMap<QString, int> *weather;
 } work_t;
 
@@ -31,17 +30,17 @@ void *client(void *arg)
     while(item->run) {
         QString coldestCity;
         int coldestTemp = std::numeric_limits<int>::max();
-        pthread_rwlock_rdlock(&item->rwlock);
+
+        /* Take read lock */
+
         QMapIterator<QString, int> i(*item->weather);
         while(i.hasNext()) {
             i.next();
-            //qDebug() << i.key() << i.value();
             if (i.value() < coldestTemp) {
                 coldestTemp = i.value();
                 coldestCity = i.key();
             }
         }
-        pthread_rwlock_unlock(&item->rwlock);
         qDebug() << "thread" << pthread_self() << "says coldest city is" << coldestCity << coldestTemp;
     }
 
@@ -62,28 +61,29 @@ int main(int argc, char *argv[])
     int n = 4;
     pthread_t threads[n];
     work_t work_item;
+
+    /* Initialize variables */
+    (void) threads;
     work_item.run = 1;
-    work_item.weather = &weather;
-    pthread_rwlock_init(&work_item.rwlock, NULL);
 
     for (int i = 0; i < n; i++) {
-        pthread_create(&threads[i], NULL, client, &work_item);
+        /* Create threads */
     }
 
-    /* update weather info */
+    /* Update weather info */
     for (int i = 0; i < 10; i++) {
-        pthread_rwlock_wrlock(&work_item.rwlock);
+        /* Take write lock */
         weather["Montreal"] = rand_range(-20, 10);
-        weather["Paris"] = rand_range(0, 20);
-        weather["Tokyo"] = rand_range(-5, 5);
-        pthread_rwlock_unlock(&work_item.rwlock);
+        weather["Paris"]    = rand_range(0, 20);
+        weather["Tokyo"]    = rand_range(-5, 5);
+
         QThread::usleep(2);
     }
 
     access_once(work_item.run) = 0;
 
     for (int i = 0; i < n; i++) {
-        pthread_join(threads[i], NULL);
+        /* Wait threads */
     }
     return 0;
 }

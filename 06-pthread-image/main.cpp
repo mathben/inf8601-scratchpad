@@ -14,19 +14,20 @@ void *effect(void *arg)
 {
     work_t *work = static_cast<work_t*>(arg);
     QImage *img = work->image;
+    (void) img;
 
-    ulong size = img->height();
-    int h0 = size * (work->rank)     / work->n;
-    int h1 = size * (work->rank + 1) / work->n;
+    /* Split work */
 
-    qDebug() << "rank" << work->rank << "h0" << h0 << "h1" << h1;
+    //qDebug() << "rank" << work->rank << "h0" << h0 << "h1" << h1;
 
+    /*
     int dr = (255 / work->n * work->rank) % 255;
     int dg = 0; int db = 0;
     int r, g, b;
-    for (int y = h0; y < h1; y++) {
-        //QRgb line = img->scanLine(y);
-        for (int x = 0; x < img->width(); x++) {
+    */
+    /* loop over pixels */
+
+    /*
             if (!img->valid(x, y)) {
                 qDebug() << QString("invalid (%1,%2)").arg(x).arg(y);
             }
@@ -37,8 +38,7 @@ void *effect(void *arg)
             b = qBound(0, qBlue(rgb) + db, 255);
 
             img->setPixel(x, y, qRgb(r, g, b));
-        }
-    }
+    */
 
     return 0;
 }
@@ -50,6 +50,9 @@ int main(int argc, char *argv[])
     int n = 10;
     pthread_t threads[n];
     work_t work_items[n];
+
+    (void) threads;
+    (void) work_items;
 
     QImage image;
 
@@ -63,14 +66,11 @@ int main(int argc, char *argv[])
     image = image.convertToFormat(QImage::Format_RGB32);
 
     for (int i = 0; i < n; i++) {
-        work_items[i].n = n;
-        work_items[i].rank = i;
-        work_items[i].image = &image;
-        pthread_create(&threads[i], NULL, effect, &work_items[i]);
+        /* Create thread */
     }
 
     for (int i = 0; i < n; i++) {
-        pthread_join(threads[i], NULL);
+        /* Wait thread */
     }
 
     image.save(modz);

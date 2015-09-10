@@ -7,9 +7,7 @@ typedef struct thread_arg {
 
 void *thread(void *args)
 {
-    register ulong rsp asm("rsp");
-    arg_t *arg = (arg_t *) args;
-    arg->rsp = rsp;
+    (void) args;
     return 0;
 }
 
@@ -22,11 +20,8 @@ int main(int argc, char *argv[])
     arg_t args[n];
 
     for (int i = 0; i < n; i++) {
-        pthread_attr_t attr;
-        size_t ss = (1 << 15);
-        pthread_attr_init(&attr);
-        pthread_attr_setstacksize(&attr, ss);
-        pthread_create(&t[i], &attr, thread, &args[i]);
+        /* Set thread attribute */
+        pthread_create(&t[i], NULL, thread, &args[i]);
     }
 
     for (int i = 0; i < n; i++) {
