@@ -4,7 +4,7 @@
 #include <QRgb>
 #include <pthread.h>
 
-typedef struct work {\
+typedef struct work {
     int n;
     int rank;
     QImage *image;
@@ -17,17 +17,22 @@ void *effect(void *arg)
     (void) img;
 
     /* Split work */
+    int h0 = work->rank * img->height() / work->n;
+    int h1 = (work->rank + 1) * img->height() / work->n;
 
-    //qDebug() << "rank" << work->rank << "h0" << h0 << "h1" << h1;
+    //assert(h0 <= img->height());
+    //qDebug() << "rank" << work->rank << img->height() << "h0" << h0 << "h1" << h1;
 
-    /*
-    int dr = (255 / work->n * work->rank) % 255;
-    int dg = 0; int db = 0;
+
+    int dr = 128;
+    int dg = (255 / work->n * work->rank) % 255;
+    int db = 50;
     int r, g, b;
-    */
+
     /* loop over pixels */
 
-    /*
+    for (int y = h0; y < h1; y++) {
+        for (int x = 0; x < img->width(); x++) {
             if (!img->valid(x, y)) {
                 qDebug() << QString("invalid (%1,%2)").arg(x).arg(y);
             }
@@ -38,7 +43,8 @@ void *effect(void *arg)
             b = qBound(0, qBlue(rgb) + db, 255);
 
             img->setPixel(x, y, qRgb(r, g, b));
-    */
+        }
+    }
 
     return 0;
 }
@@ -47,12 +53,9 @@ int main(int argc, char *argv[])
 {
     (void) argc; (void) argv;
 
-    int n = 10;
+    int n = 8;
     pthread_t threads[n];
     work_t work_items[n];
-
-    (void) threads;
-    (void) work_items;
 
     QImage image;
 
@@ -66,11 +69,14 @@ int main(int argc, char *argv[])
     image = image.convertToFormat(QImage::Format_RGB32);
 
     for (int i = 0; i < n; i++) {
-        /* Create thread */
+        work_items[i].n = n;
+        work_items[i].rank = i;
+        work_items[i].image = &image;
+        pthread_create(&threads[i], NULL, effect, &work_items[i]);
     }
 
     for (int i = 0; i < n; i++) {
-        /* Wait thread */
+        pthread_join(threads[i], NULL);
     }
 
     image.save(modz);
