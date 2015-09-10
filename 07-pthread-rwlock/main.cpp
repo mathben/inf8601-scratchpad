@@ -71,13 +71,13 @@ int main(int argc, char *argv[])
     }
 
     /* update weather info */
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10; i++) {
         pthread_rwlock_wrlock(&work_item.rwlock);
         weather["Montreal"] = rand_range(-20, 10);
         weather["Paris"] = rand_range(0, 20);
         weather["Tokyo"] = rand_range(-5, 5);
         pthread_rwlock_unlock(&work_item.rwlock);
-        QThread::msleep(10);
+        QThread::usleep(2);
     }
 
     access_once(work_item.run) = 0;
