@@ -8,4 +8,5 @@ SUBDIRS += \
     05-pthread-pool \
     06-pthread-image \
     07-pthread-rwlock \
-    08-pthread-mutex
+    08-pthread-mutex \
+    09-pthread-cond-lost
