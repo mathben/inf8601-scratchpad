@@ -1,6 +1,8 @@
 #include <QDebug>
 #include <iostream>
 #include <pthread.h>
+#include <cassert>
+#include <QThread>
 
 using namespace std;
 
@@ -17,17 +19,35 @@ void *thread(void *arg)
 
     for (;;) {
         pthread_mutex_lock(&ctx->mutex);
-        pthread_cond_wait(&ctx->cond, &ctx->mutex);
+
+        /*
+         * Wait until a command is available, or quit is requested.
+         * If there is a command, don't wait and process it.
+         */
+        while (!ctx->quit && ctx->input.isEmpty()) {
+            /*
+             * Just before blocking, pthread_cond_wait unlocks the mutex and
+             * the mutex is locked again when pthread_cond_wait() returns.
+             */
+            pthread_cond_wait(&ctx->cond, &ctx->mutex);
+        }
 
         if (ctx->quit) {
             pthread_mutex_unlock(&ctx->mutex);
             break;
         }
-        if (!ctx->input.isEmpty()) {
-            QString cmd = ctx->input.takeFirst();
-            pthread_mutex_unlock(&ctx->mutex);
-            qDebug() << "thread" << pthread_self() << "says" << cmd;
-        }
+
+        /* There should be a command */
+        assert(!ctx->input.isEmpty());
+
+        /* Take the command and release the lock ASAP */
+        QString cmd = ctx->input.takeFirst();
+        pthread_mutex_unlock(&ctx->mutex);
+
+        /* Process the command, relax */
+        qDebug() << "thread" << pthread_self() << "process" << cmd;
+        QThread::msleep(10000);
+        qDebug() << "thread" << pthread_self() << "done" << cmd;
     }
     return 0;
 }
@@ -40,17 +60,24 @@ void loop(ctx_t *ctx)
     for (;;) {
         cout << "> ";
         line = stream.readLine().trimmed();
+
+        /* Modification to shared structure requires the lock */
+        pthread_mutex_lock(&ctx->mutex);
+
         if (line.compare("quit") == 0) {
             ctx->quit = true;
+            /* signal before unlock */
             pthread_cond_broadcast(&ctx->cond);
+            pthread_mutex_unlock(&ctx->mutex);
             break;
         }
 
-        pthread_mutex_lock(&ctx->mutex);
         ctx->input.append(line);
-        pthread_mutex_unlock(&ctx->mutex);
+        qDebug() << ctx->input;
 
+        /* signal before unlock */
         pthread_cond_signal(&ctx->cond);
+        pthread_mutex_unlock(&ctx->mutex);
     }
 }
 
