@@ -7,6 +7,7 @@ public:
         pthread_mutexattr_t attr;
         pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
         pthread_mutex_init(&m_mutex, &attr);
+        pthread_attr_destroy(&attr);
     }
 
     void set(int temp) {
