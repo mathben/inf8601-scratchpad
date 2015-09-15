@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
         pthread_attr_init(&attr);
         pthread_attr_setstacksize(&attr, ss);
         pthread_create(&t[i], &attr, thread, &args[i]);
+        pthread_attr_destroy(&attr);
     }
 
     for (int i = 0; i < n; i++) {
