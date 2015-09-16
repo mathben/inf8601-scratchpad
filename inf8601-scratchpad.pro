@@ -10,4 +10,5 @@ SUBDIRS += \
     07-pthread-rwlock \
     08-pthread-mutex \
     09-pthread-cond-lost \
-    10-cpp-lambda
+    10-cpp-lambda \
+    11-tbb-parallel-for
