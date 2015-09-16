@@ -2,6 +2,10 @@
 #include <QVector>
 #include "tbb/tbb.h"
 
+/*
+ * parallel implementation of memset()
+ */
+
 class MemSet {
 public:
     MemSet(int *data): m_data(data) { }
