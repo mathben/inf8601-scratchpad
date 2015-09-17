@@ -12,4 +12,5 @@ SUBDIRS += \
     09-pthread-cond-lost \
     10-cpp-lambda \
     11-tbb-parallel-for \
-    11-tbb-parallel-reduce
+    11-tbb-parallel-reduce \
+    12-tbb-parallel-sort
