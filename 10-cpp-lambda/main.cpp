@@ -22,8 +22,9 @@ void execute(std::function<void ()> func)
 
 std::function<void ()> make_func()
 {
-    QString msg("local variable invalid outside of make_func");
-    return [&] () { qDebug() << "lambda invalid" << msg; };
+    // declare local variable
+    // return lambda using the local variable by reference
+    return 0;
 }
 
 int main(int argc, char *argv[])
@@ -45,35 +46,24 @@ int main(int argc, char *argv[])
      */
 
     // basic example: no capture, no arguments, no return value
-    std::function<void ()> f1 = [] () { qDebug() << "lambda"; };
-    f1();           // explicit call
-    execute(f1);    // pass as parameter
+    // std:function<rettype (args)> = [] () {};
+    // explicit call
+    // pass as parameter
 
-    // let the compiler figure the type
-    auto f2 = [] () { qDebug() << "lambda"; };
-    f2();
+    // let the compiler figure the type with auto
 
     // you can access variables from the parent scope...
     QString msg("variable in parent scope by reference");
-    auto f3 = [&] () { qDebug() << "lambda" << msg; };
-    f3();
 
     // ...but this variable must be valid at the time the lambda is called
     // don't do the following:
-    //auto f4 = make_func();
+    auto f4 = make_func();
     //f4(); // SIGSEGV
 
     // example of filter using lambda with argument and return
     QVector<int> data({0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
-    auto even = [] (const int &x) { return (x % 2) == 0; };
-    auto odd = [] (const int &x) { return ((x + 1) % 2) == 0; };
-    auto lucky = [] (const int &x) { return x == 7; };
-
-    qDebug() << "even " << filter(data, even);
-    qDebug() << "odd  " << filter(data, odd);
-    qDebug() << "lucky" << filter(data, lucky);
-    qDebug() << "mod3 " << filter(data, [] (const int &x) { return (x % 3) == 0; } );
+    // make filter std::function<bool (const int& x)>
 
     return 0;
 }

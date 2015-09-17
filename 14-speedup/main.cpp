@@ -85,20 +85,14 @@ void do_pthread(saxpy *sax)
 
 void do_tbb(saxpy& sax)
 {
-    tbb::parallel_for(tbb::blocked_range<int>(0, sax.x.size()),
-        [&] (const tbb::blocked_range<int>& range) {
-            for (int i = range.begin(); i < range.end(); i++) {
-                sax.y[i] = sax.a * sax.x[i] + sax.y[i];
-            }
-    });
+    // implements tbb::parallel_for using lambda
+
 }
 
 double elapsed(std::function<void ()> func)
 {
-    QElapsedTimer timer;
-    timer.start();
-    func();
-    return timer.nsecsElapsed() / 1000000000.0f;
+    // measure the time taken by func
+    return 0.0;
 }
 
 void print_result(QString name, double reference, double actual)

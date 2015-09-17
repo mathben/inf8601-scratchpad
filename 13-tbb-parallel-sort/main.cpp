@@ -16,10 +16,12 @@ int main(int argc, char *argv[])
     std::random_shuffle(data.begin(), data.end());
     qDebug() << "rand" << data;
 
-    tbb::parallel_sort(data.begin(), data.end());
+    // sort in ascending order
+
     qDebug() << "incr" << data;
 
-    tbb::parallel_sort(data.begin(), data.end(), std::greater<int>());
+    // sort in reverse order
+
     qDebug() << "desc" << data;
 
     return 0;
