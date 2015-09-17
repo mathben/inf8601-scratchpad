@@ -13,4 +13,5 @@ SUBDIRS += \
     10-cpp-lambda \
     11-tbb-parallel-for \
     11-tbb-parallel-reduce \
-    12-tbb-parallel-sort
+    12-tbb-parallel-sort \
+    14-speedup
