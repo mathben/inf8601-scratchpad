@@ -11,6 +11,7 @@ QT       -= gui
 TARGET = 15-parallel_sort_perf
 CONFIG   += console
 CONFIG   -= app_bundle
+CONFIG += c++11
 
 TEMPLATE = app
 
