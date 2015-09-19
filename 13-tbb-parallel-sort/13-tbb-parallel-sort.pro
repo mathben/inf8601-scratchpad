@@ -8,7 +8,7 @@ QT       += core
 
 QT       -= gui
 
-TARGET = 12-tbb-parallel-sort
+TARGET = 13-tbb-parallel-sort
 CONFIG   += console
 CONFIG   -= app_bundle
 CONFIG += c++11
