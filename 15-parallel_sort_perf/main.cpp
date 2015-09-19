@@ -11,6 +11,9 @@
 
 int main(int argc, char *argv[])
 {
+    (void) argc;
+    (void) argv;
+
     const int NB_INTS = 1000000;
 
     std::vector<int> ints(NB_INTS);
