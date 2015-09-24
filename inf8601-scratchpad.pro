@@ -15,4 +15,6 @@ SUBDIRS += \
     12-tbb-parallel-reduce \
     13-tbb-parallel-sort \
     14-speedup \
-    15-parallel_sort_perf
+    15-parallel_sort_perf \
+    16-cache-align \
+    17-cache-pmu
