@@ -17,4 +17,5 @@ SUBDIRS += \
     14-speedup \
     15-parallel_sort_perf \
     16-cache-align \
-    17-cache-pmu
+    17-cache-pmu \
+    18-cache-patterns
