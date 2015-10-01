@@ -80,7 +80,43 @@ int main(int argc, char *argv[])
 
     qDebug() << "normalized max=" << max;
 
+    // find the max value (manual reduction)
+    float my_max = 0.0;
+    {
+        for (i = 0; i < n; i++) {
+            my_max = std::max(my_max, std::abs(norm[i]));
+        }
+        {
+            max = std::max(max, my_max);
+        }
+    }
+
+    qDebug() << "check max=" << max;
+
+    // find the max value (automatic reduction)
+    float the_max = 0.0;
+    for (i = 0; i < n; i++) {
+        the_max = std::max(the_max, std::abs(norm[i]));
+    }
+
+    qDebug() << "check max=" << the_max;
+
     write_data(orig, norm);
+
+    // exemple nowait
+    /*
+    #pragma omp parallel
+    {
+        #pragma omp for nowait
+        for (int i=0; i<n; i++) a[i] = b[i] + c[i];
+
+        #pragma omp for nowait
+        for (int i=0; i<n; i++) d[i] = e[i] + f[i];
+
+        #pragma omp barrier
+        scale = sum(a,0,n) + sum(d,0,n);
+    }
+    */
 
     return 0;
 }
