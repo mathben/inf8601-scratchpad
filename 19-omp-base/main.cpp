@@ -1,50 +1,87 @@
 #include <QDebug>
-#include <QVector>
 #include <QElapsedTimer>
-#include <functional>
-
-double time_it(std::function<void ()> fn)
-{
-    QElapsedTimer timer;
-
-    // warm-up
-    fn();
-
-    timer.start();
-    fn();
-    ulong elapsed = timer.nsecsElapsed();
-    return (double) elapsed / 1000000000.0;
-}
-
-double speedup(std::function<void ()> serial, std::function<void ()> parallel)
-{
-    double s = time_it(serial);
-    double p = time_it(parallel);
-    return s / p;
-}
+#include <QThread>
+#include <omp.h>
 
 int main(int argc, char *argv[])
 {
     (void) argc; (void) argv;
 
-    // init some data
-    int n = 1000000;
-    QVector<int> v(n);
+    /*
+     * Example 1: omp parallel
+     */
+    qDebug() << "omp parallel begin";
+    #pragma omp parallel
+    {
+        qDebug() << "rank" << omp_get_thread_num() <<
+                    "size" << omp_get_num_threads();
+    }
+    qDebug() << "omp parallel end";
 
-    auto memset_serial = [&]() {
-        for (int i = 0; i < n; i++) {
-            v[i] = i * i;
+    /*
+     * Example 2: omp parallel sections
+     */
+    qDebug() << "omp parallel sections begin";
+    #pragma omp parallel
+    {
+        #pragma omp sections
+        {
+            qDebug() << "section 1 rank" << omp_get_thread_num();
         }
-    };
-
-    auto memset_parallel = [&]() {
-        #pragma omp parallel for
-        for (int i = 0; i < n; i++) {
-            v[i] = i * i;
+        #pragma omp sections
+        {
+            qDebug() << "section 2 rank" << omp_get_thread_num();
         }
-    };
+        #pragma omp sections
+        {
+            qDebug() << "section 3 rank" << omp_get_thread_num();
+        }
+    }
+    qDebug() << "omp parallel sections end";
 
-    double memset_speedup = speedup(memset_serial, memset_parallel);
-    qDebug() << "memset speedup:" << memset_speedup;
+    /*
+     * Example 3: omp task
+     */
+    qDebug() << "omp task begin";
+    QElapsedTimer timer;
+    timer.start();
+    #pragma omp task
+    {
+        qDebug() << "task 1 rank" << omp_get_thread_num();
+        QThread::usleep(1000);
+    }
+    #pragma omp task
+    {
+        qDebug() << "task 2 rank" << omp_get_thread_num();
+        QThread::usleep(1000);
+    }
+    #pragma omp barrier
+    qDebug() << "omp task end" << timer.elapsed();
+
+    /*
+     * Example 4: omp parallel single
+     */
+    qDebug() << "omp parallel single begin";
+    #pragma omp parallel
+    {
+        #pragma omp single
+        {
+            qDebug() << "rank" << omp_get_thread_num();
+        }
+    }
+    qDebug() << "omp parallel single end";
+
+    /*
+     * Example 5: omp parallel master
+     */
+    qDebug() << "omp parallel master begin";
+    #pragma omp parallel
+    {
+        #pragma omp master
+        {
+            qDebug() << "rank" << omp_get_thread_num();
+        }
+    }
+    qDebug() << "omp parallel master end";
 
 }

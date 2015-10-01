@@ -19,4 +19,7 @@ SUBDIRS += \
     16-cache-align \
     17-cache-pmu \
     18-cache-patterns \
-    19-omp-base
+    19-omp-base \
+    20-omp-speedup \
+    21-omp-scope \
+    22-omp-seq
