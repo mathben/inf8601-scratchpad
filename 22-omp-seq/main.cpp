@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
     // variables
     int n = 1000;
-    float max = 0.0;
+    float amplitude = 0.0;
     int i = 0;
     float p = 0.1;
     float t = 0.0;
@@ -52,71 +52,56 @@ int main(int argc, char *argv[])
     QVector<float> norm(n);
 
     // init sound-like data
-    #pragma omp parallel for
+    #pragma omp parallel for private(t)
     for (i = 0; i < n; i++) {
+        t = i * p;
         orig[i] = std::cos((t + 0.1) * 0.1) +
                   std::cos((t + 0.2) * 0.2) +
                   std::cos((t + 0.3) * 0.3);
-        t += p;
     }
 
     // detect the max value
+    #pragma omp parallel for reduction(max:amplitude)
     for (i = 0; i < n; i++) {
-        max = std::max(max, std::abs(orig[i]));
+        amplitude = std::max(amplitude, std::abs(orig[i]));
     }
 
-    qDebug() << "max=" << max;
+    qDebug() << "amplitude=" << amplitude;
 
     // normalize
+    float inv_amplitude = 1 / amplitude;
+    #pragma omp parallel for
     for (i = 0; i < n; i++) {
-        norm[i] = orig[i] / max;
+        norm[i] = orig[i] * inv_amplitude;
     }
 
     // verify the max value
-    max = 0.0;
+    amplitude = 0.0;
+    #pragma omp parallel for reduction(max:amplitude)
     for (i = 0; i < n; i++) {
-        max = std::max(max, std::abs(norm[i]));
+        amplitude = std::max(amplitude, std::abs(norm[i]));
     }
 
-    qDebug() << "normalized max=" << max;
+    qDebug() << "normalized max=" << amplitude;
 
     // find the max value (manual reduction)
-    float my_max = 0.0;
+    float temp = 0.0;
+    float amplitude2 = 0.0;
+    #pragma omp parallel firstprivate(temp)
     {
+        #pragma omp for
         for (i = 0; i < n; i++) {
-            my_max = std::max(my_max, std::abs(norm[i]));
+            temp = std::max(temp, std::abs(norm[i]));
         }
+        #pragma omp critical
         {
-            max = std::max(max, my_max);
+            amplitude2 = std::max(temp, amplitude2);
         }
     }
 
-    qDebug() << "check max=" << max;
-
-    // find the max value (automatic reduction)
-    float the_max = 0.0;
-    for (i = 0; i < n; i++) {
-        the_max = std::max(the_max, std::abs(norm[i]));
-    }
-
-    qDebug() << "check max=" << the_max;
+    qDebug() << "check amplitude2=" << amplitude2;
 
     write_data(orig, norm);
-
-    // exemple nowait
-    /*
-    #pragma omp parallel
-    {
-        #pragma omp for nowait
-        for (int i=0; i<n; i++) a[i] = b[i] + c[i];
-
-        #pragma omp for nowait
-        for (int i=0; i<n; i++) d[i] = e[i] + f[i];
-
-        #pragma omp barrier
-        scale = sum(a,0,n) + sum(d,0,n);
-    }
-    */
 
     return 0;
 }
