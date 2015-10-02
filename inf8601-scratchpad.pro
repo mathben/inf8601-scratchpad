@@ -23,4 +23,5 @@ SUBDIRS += \
     20-omp-speedup \
     21-omp-scope \
     22-omp-seq \
-    23-omp-task
+    23-omp-task \
+    24-simd-base
