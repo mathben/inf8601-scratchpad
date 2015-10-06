@@ -69,30 +69,32 @@ add10_v2:
 
 # return the minimum value of three numbers
 # update rax to the lowest number
+# local label 1f means goto label 1 defined Forward
+# can also be 1b if the label 1 was before (usually for loops)
 min3_v1:
     mov %rdi, %rax # rax = a
     mov %rsi, %rcx # rcx = b
-    cmp %rcx, %rax # if (rax <= rcx) goto lt10
-    jle lt10
+    cmp %rcx, %rax # if (rax <= rcx) goto 1
+    jle 1f
     mov %rcx, %rax # else rax = rcx
-lt10:
+1:
     mov %rdx, %rcx # rcx = c
-    cmp %rcx, %rax # if (rax <= rcx) goto lt20
-    jle lt20
+    cmp %rcx, %rax # if (rax <= rcx) goto 2
+    jle 2f
     mov %rcx, %rax # else rax = rcx
-lt20:
+2:
     ret
 
 max3_v1:
     mov %rdi, %rax # rax = a
     mov %rsi, %rcx # rcx = b
-    cmp %rcx, %rax # if (rax >= rcx) goto lt11
-    jge lt11
+    cmp %rcx, %rax # if (rax >= rcx) goto 1
+    jge 1f
     mov %rcx, %rax # else rax = rcx
-lt11:
+1:
     mov %rdx, %rcx # rcx = c
-    cmp %rcx, %rax # if (rax >= rcx) goto lt21
-    jge lt21
+    cmp %rcx, %rax # if (rax >= rcx) goto 2
+    jge 2f
     mov %rcx, %rax # else rax = rcx
-lt21:
+2:
     ret
