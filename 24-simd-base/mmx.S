@@ -7,18 +7,19 @@
 # while XMM0-7 are used for floating point arguments.
 #
 
-.global hello, add2, add10_v1, add10_v2
+.global hello, add2, add10_v1, add10_v2, min3_v1, max3_v1
 
 .text
 
 # the classical hello world test
 msg:
         .ascii  "hello\n"
+msg_len = . - msg
 hello:
     mov     $1, %rax
     mov     $1, %rdi
     mov     $msg, %rsi
-    mov     $6, %rdx
+    mov     $msg_len, %rdx
     syscall
     ret
 
@@ -64,4 +65,34 @@ add10_v2:
     add 0x28(%rbp), %rax
     pop %rbp
 
+    ret
+
+# return the minimum value of three numbers
+# update rax to the lowest number
+min3_v1:
+    mov %rdi, %rax # rax = a
+    mov %rsi, %rcx # rcx = b
+    cmp %rcx, %rax # if (rax <= rcx) goto lt10
+    jle lt10
+    mov %rcx, %rax # else rax = rcx
+lt10:
+    mov %rdx, %rcx # rcx = c
+    cmp %rcx, %rax # if (rax <= rcx) goto lt20
+    jle lt20
+    mov %rcx, %rax # else rax = rcx
+lt20:
+    ret
+
+max3_v1:
+    mov %rdi, %rax # rax = a
+    mov %rsi, %rcx # rcx = b
+    cmp %rcx, %rax # if (rax >= rcx) goto lt11
+    jge lt11
+    mov %rcx, %rax # else rax = rcx
+lt11:
+    mov %rdx, %rcx # rcx = c
+    cmp %rcx, %rax # if (rax >= rcx) goto lt21
+    jge lt21
+    mov %rcx, %rax # else rax = rcx
+lt21:
     ret

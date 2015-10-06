@@ -7,14 +7,17 @@ extern "C"
 #endif
 
 void hello(void);
-int add2(int x, int y);
-int add10_v1(int a, int b, int c, int d,
-             int e, int f, int g, int h,
-             int i, int j);
+long add2(long x, long y);
+long add10_v1(long a, long b, long c, long d,
+             long e, long f, long g, long h,
+             long i, long j);
 
-int add10_v2(int a, int b, int c, int d,
-             int e, int f, int g, int h,
-             int i, int j);
+long add10_v2(long a, long b, long c, long d,
+             long e, long f, long g, long h,
+             long i, long j);
+
+long min3_v1(long a, long b, long c);
+long max3_v1(long a, long b, long c);
 
 #ifdef __cplusplus
 }

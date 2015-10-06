@@ -11,12 +11,15 @@ int main(int argc, char *argv[])
 
     hello();
 
-    std::printf("%X\n", add2(1, 2));
+    std::printf("%lX\n", add2(1, 2));
 
-    int cafebabe1 = add10_v1(0xCAFE0000, 0, 0, 0, 0, 0, 0, 0, 0, 0x0000BABE);
-    int cafebabe2 = add10_v2(0xCAFE0000, 0, 0, 0, 0, 0, 0, 0, 0, 0x0000BABE);
-    std::printf("%X\n", cafebabe1);
-    std::printf("%X\n", cafebabe2);
+    long cafebabe1 = add10_v1(0xCAFE0000, 0, 0, 0, 0, 0, 0, 0, 0, 0x0000BABE);
+    long cafebabe2 = add10_v2(0xCAFE0000, 0, 0, 0, 0, 0, 0, 0, 0, 0x0000BABE);
+    std::printf("%lX\n", cafebabe1);
+    std::printf("%lX\n", cafebabe2);
+
+    std::printf("%ld\n", min3_v1(3, 10, -12));
+    std::printf("%ld\n", max3_v1(3, 10, -12));
 
     return 0;
 }
