@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cassert>
 
-#include "mmx.h"
+#include "ops.h"
 
 int main(int argc, char *argv[])
 {

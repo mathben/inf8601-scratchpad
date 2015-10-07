@@ -1,5 +1,5 @@
-#ifndef MMX_H
-#define MMX_H
+#ifndef OPS_H
+#define OPS_H
 
 #ifdef __cplusplus
 extern "C"
@@ -25,4 +25,4 @@ long eq2(long x, long y);
 }
 #endif
 
-#endif // MMX_H
+#endif // OPS_H

@@ -14,12 +14,11 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-
 SOURCES += main.cpp \
-    mmx.S
+    ops.S
 
 OTHER_FILES += \
-    mmx.S
+    ops.S
 
 HEADERS += \
-    mmx.h
+    ops.h
