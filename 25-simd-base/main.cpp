@@ -13,7 +13,6 @@ float fadd_cpp(float x, float y)
     return x + y;
 }
 
-
 __attribute__((noinline))
 void array_addss_cpp(float *vector, float scalar, int length)
 {
@@ -22,6 +21,21 @@ void array_addss_cpp(float *vector, float scalar, int length)
     }
 }
 
+__attribute__((noinline))
+void array_addss_cpp_vect(float *vector, float scalar, int length)
+{
+    __m128 s = _mm_set_ps(scalar, scalar, scalar, scalar);
+
+    int chunks = length / 4;
+    int round_down = chunks * 4;
+    for (int i = 0; i < round_down; i+=4) {
+        __m128 d = _mm_loadu_ps(vector + i);
+        __m128 a = _mm_add_ps(d, s);
+        _mm_storeu_ps(vector + i, a);
+    }
+    //int residue = length % 4;
+
+}
 
 void assembly_ops()
 {
@@ -53,20 +67,28 @@ void reset(QVector<float> &vec)
 #define ROUND_DOWN(x, s) ((x) & ~((s)-1))
 void assembly_vec()
 {
-    long n = 10;
+    long n = 15;
     QVector<float> data(n);
-    reset(data);
-
-    qDebug() << data;
-    array_addss_cpp(data.data(), 1.0, data.size());
-
-    qDebug() << data;
-    array_addss_iter(data.data(), 1.0, data.size());
-    qDebug() << data;
+    float val = -8346975.0;
 
     reset(data);
-    array_addss_vect(data.data(), 1.0, data.size());
-    qDebug() << data;
+    qDebug() << "orig" << data;
+
+    reset(data);
+    array_addss_cpp(data.data(), val, data.size());
+    qDebug() << "cpp " << data;
+
+    reset(data);
+    array_addss_cpp_vect(data.data(), val, data.size());
+    qDebug() << "cppv" << data;
+
+    reset(data);
+    array_addss_iter(data.data(), val, data.size());
+    qDebug() << "asmi" << data;
+
+    reset(data);
+    array_addss_vect(data.data(), val, data.size());
+    qDebug() << "asmv" << data;
 
 }
 
