@@ -8,7 +8,7 @@ QT       += core
 
 QT       -= gui
 
-TARGET = 23-omp-atomic
+TARGET = 24-omp-atomic
 CONFIG   += console
 CONFIG   -= app_bundle
 

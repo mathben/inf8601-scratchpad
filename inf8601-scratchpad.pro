@@ -24,4 +24,5 @@ SUBDIRS += \
     21-omp-scope \
     22-omp-seq \
     23-omp-task \
-    24-simd-base
+    24-omp-atomic \
+    25-simd-base

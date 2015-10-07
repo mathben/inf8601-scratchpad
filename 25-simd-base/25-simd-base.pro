@@ -8,7 +8,7 @@ QT       += core
 
 QT       -= gui
 
-TARGET = 24-simd-base
+TARGET = 25-simd-base
 CONFIG   += console
 CONFIG   -= app_bundle
 
