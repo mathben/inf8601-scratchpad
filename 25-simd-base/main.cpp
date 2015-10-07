@@ -21,5 +21,8 @@ int main(int argc, char *argv[])
     std::printf("%ld\n", min3_v1(3, 10, -12));
     std::printf("%ld\n", max3_v1(3, 10, -12));
 
+    std::printf("%ld\n", eq2(1, 2));
+    std::printf("%ld\n", eq2(2, 2));
+
     return 0;
 }
