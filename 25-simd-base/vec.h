@@ -6,8 +6,8 @@ extern "C"
 {
 #endif
 
-void array_add_scalar_iter(long *v, long off, long len);
-void array_add_scalar_vect(long *v, long off, long len);
+void array_addss_iter(float *vector, float scalar, long length);
+void array_addss_vect(float *vector, float scalar, long length);
 
 #ifdef __cplusplus
 }

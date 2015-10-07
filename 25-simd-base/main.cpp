@@ -13,6 +13,16 @@ float fadd_cpp(float x, float y)
     return x + y;
 }
 
+
+__attribute__((noinline))
+void array_addss_cpp(float *vector, float scalar, int length)
+{
+    for (int i = 0; i < length; i++) {
+        vector[i] = vector[i] + scalar;
+    }
+}
+
+
 void assembly_ops()
 {
     hello();
@@ -34,25 +44,28 @@ void assembly_ops()
     std::printf("%f\n", fadd2(1.1, 1.1));
 }
 
-void reset(QVector<long> &vec)
+void reset(QVector<float> &vec)
 {
     for (int i = 0; i < vec.size(); i++)
-        vec[i] = i;
+        vec[i] = 0.0;
 }
 
 #define ROUND_DOWN(x, s) ((x) & ~((s)-1))
 void assembly_vec()
 {
     long n = 10;
-    QVector<long> data(n);
+    QVector<float> data(n);
     reset(data);
 
     qDebug() << data;
-    array_add_scalar_iter(data.data(), 1, data.size());
+    array_addss_cpp(data.data(), 1.0, data.size());
+
+    qDebug() << data;
+    array_addss_iter(data.data(), 1.0, data.size());
     qDebug() << data;
 
     reset(data);
-    array_add_scalar_vect(data.data(), 1, data.size());
+    array_addss_vect(data.data(), 1.0, data.size());
     qDebug() << data;
 
 }

@@ -105,6 +105,7 @@ eq2:
     ret
 
 fadd2:
+    # addss: Add Scalar Single-precision floating point
     addss %xmm1, %xmm0 # xmm0 = xmm0 + xmm1
     # floating point return value in xmm0 (instead of rax for integer)
     ret
