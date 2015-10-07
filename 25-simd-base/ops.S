@@ -7,7 +7,7 @@
 # while XMM0-7 are used for floating point arguments.
 #
 
-.global hello, add2, add10_v1, add10_v2, min3_v1, max3_v1, eq2
+.global hello, add2, add10_v1, add10_v2, min3_v1, max3_v1, eq2, fadd2
 
 .text
 
@@ -102,4 +102,9 @@ max3_v1:
 eq2:
     cmp %rdi, %rsi
     sete %al # if (rsi == rsi) al = 1 else al = 0
+    ret
+
+fadd2:
+    addss %xmm1, %xmm0 # xmm0 = xmm0 + xmm1
+    # floating point return value in xmm0 (instead of rax for integer)
     ret
