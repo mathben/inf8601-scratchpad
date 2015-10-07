@@ -15,10 +15,13 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    ops.S
+    ops.S \
+    vec.S
 
 OTHER_FILES += \
-    ops.S
+    ops.S \
+    vec.S
 
 HEADERS += \
-    ops.h
+    ops.h \
+    vec.h

@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include "ops.h"
+#include "vec.h"
 
 int main(int argc, char *argv[])
 {
@@ -24,5 +25,13 @@ int main(int argc, char *argv[])
     std::printf("%ld\n", eq2(1, 2));
     std::printf("%ld\n", eq2(2, 2));
 
+    long n = 10;
+    QVector<long> data(n);
+    for (int i = 0; i < n; i++)
+        data[i] = i;
+
+    qDebug() << data;
+    array_add_scalar_iter(data.data(), 42, data.size());
+    qDebug() << data;
     return 0;
 }
