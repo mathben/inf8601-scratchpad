@@ -1,6 +1,6 @@
 # registers RDI, RSI, RDX, RCX, R8, and R9,
 
-.global array_addss_iter, array_addss_vect, movss_ex1, movups_ex1
+.global array_addss_iter, array_addps_vect, movss_ex1, movups_ex1
 
 .text
 
@@ -26,7 +26,7 @@ array_addss_iter:
 # rdi = vector
 # xmm0 = scalar
 # rsi  = length
-array_addss_vect:
+array_addps_vect:
     push %rbp
     mov %rsp, %rbp
     cmp $0, %rsi

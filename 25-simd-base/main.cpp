@@ -22,7 +22,7 @@ void array_addss_cpp(float *vector, float scalar, int length)
 }
 
 __attribute__((noinline))
-void array_addss_cpp_vect(float *vector, float scalar, int length)
+void array_addps_cpp_vect(float *vector, float scalar, int length)
 {
     __m128 s = _mm_set_ps(scalar, scalar, scalar, scalar);
 
@@ -90,11 +90,11 @@ void assembly_vec()
     qDebug() << "asmi" << data;
 
     reset(data);
-    array_addss_vect(data.data(), val, data.size());
+    array_addps_vect(data.data(), val, data.size());
     qDebug() << "asmv" << data;
 
     reset(data);
-    array_addss_cpp_vect(data.data(), val, data.size());
+    array_addps_cpp_vect(data.data(), val, data.size());
     qDebug() << "cppv" << data;
 
 }
