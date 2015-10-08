@@ -25,4 +25,5 @@ SUBDIRS += \
     22-omp-seq \
     23-omp-task \
     24-omp-atomic \
-    25-simd-base
+    25-simd-base \
+    26-simd-autovec

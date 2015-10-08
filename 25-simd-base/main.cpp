@@ -33,7 +33,11 @@ void array_addss_cpp_vect(float *vector, float scalar, int length)
         __m128 a = _mm_add_ps(d, s);
         _mm_storeu_ps(vector + i, a);
     }
-    //int residue = length % 4;
+
+    // tail of the vector, if any
+    for (int i = round_down; i < length; i++) {
+        vector[i] = vector[i] + scalar;
+    }
 
 }
 
@@ -67,9 +71,9 @@ void reset(QVector<float> &vec)
 #define ROUND_DOWN(x, s) ((x) & ~((s)-1))
 void assembly_vec()
 {
-    long n = 15;
+    long n = 10;
     QVector<float> data(n);
-    float val = -8346975.0;
+    float val = -8346975.0; // 0xcafebabe
 
     movss_ex1();
     movups_ex1();
@@ -82,16 +86,16 @@ void assembly_vec()
     qDebug() << "cpp " << data;
 
     reset(data);
-    array_addss_cpp_vect(data.data(), val, data.size());
-    qDebug() << "cppv" << data;
-
-    reset(data);
     array_addss_iter(data.data(), val, data.size());
     qDebug() << "asmi" << data;
 
     reset(data);
     array_addss_vect(data.data(), val, data.size());
     qDebug() << "asmv" << data;
+
+    reset(data);
+    array_addss_cpp_vect(data.data(), val, data.size());
+    qDebug() << "cppv" << data;
 
 }
 
