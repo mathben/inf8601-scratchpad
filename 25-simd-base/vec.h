@@ -8,6 +8,8 @@ extern "C"
 
 void array_addss_iter(float *vector, float scalar, long length);
 void array_addss_vect(float *vector, float scalar, long length);
+void movss_ex1(void);
+void movups_ex1(void);
 
 #ifdef __cplusplus
 }

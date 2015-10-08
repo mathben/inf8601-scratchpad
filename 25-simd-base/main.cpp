@@ -71,6 +71,9 @@ void assembly_vec()
     QVector<float> data(n);
     float val = -8346975.0;
 
+    movss_ex1();
+    movups_ex1();
+
     reset(data);
     qDebug() << "orig" << data;
 

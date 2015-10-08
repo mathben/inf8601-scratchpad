@@ -1,6 +1,6 @@
 # registers RDI, RSI, RDX, RCX, R8, and R9,
 
-.global array_addss_iter, array_addss_vect
+.global array_addss_iter, array_addss_vect, movss_ex1, movups_ex1
 
 .text
 
@@ -49,5 +49,31 @@ array_addss_vect:
     jge 1b
     mov %rbp, %rsp
 2:
+    pop %rbp
+    ret
+
+movss_ex1:
+    xorps %xmm0,       %xmm0 # clear xmm0
+    mov   $0xcafebabe, %eax
+    movd  %eax,        %xmm0 # copy
+    movss %xmm0,       %xmm1 # copy
+    ret
+
+movups_ex1:
+    xor %eax, %eax
+    push %rbp
+    mov %rsp, %rbp
+
+    # copy the float 4 times on the stack
+    sub $0x10, %rsp
+    mov $0xcafebabe, %eax
+    mov %eax, -0x04(%rbp)
+    mov %eax, -0x08(%rbp)
+    mov %eax, -0x0C(%rbp)
+    mov %eax, -0x10(%rbp)
+    xorps %xmm0,        %xmm0 # clear xmm0
+    movups -0x10(%rbp), %xmm0 # put everything in the xmm0 vector
+
+    mov %rbp, %rsp
     pop %rbp
     ret
