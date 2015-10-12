@@ -35,9 +35,9 @@ int main(int argc, char *argv[])
     long *foo = (long *) (ulbuf + (64 - 4));
     is_bleeding(foo, sizeof(long));
 
-    long __attribute__((__aligned__(64))) x = 42;
-    long __attribute__((__aligned__(64))) y = 42;
-    long __attribute__((__aligned__(64))) z = 42;
+    long __attribute__((aligned(64))) x = 42;
+    long __attribute__((aligned(64))) y = 42;
+    long __attribute__((aligned(64))) z = 42;
     is_bleeding(&x, sizeof(long));
     is_bleeding(&y, sizeof(long));
     is_bleeding(&z, sizeof(long));
