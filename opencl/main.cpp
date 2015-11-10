@@ -127,7 +127,7 @@ public:
          * est retourné par get_global_id(dimension). get_global_id(0) retourne
          * l'indexe x et get_global_id(1) retourne l'indexe y.
          */
-        size_t work_size[] = { size };
+        size_t work_size[] = { x.size() };
 
         /*
          * Création des tampons sur la carte. Les opérations CL_MEM_READ/CL_MEM_WRITE
