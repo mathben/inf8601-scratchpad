@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <cassert>
 #include <mpi.h>
+#include <qmath.h>
 
 /*
  * Calculer la valeur de PI en intégrant la fonction f(x) = 4 / (1 + x^2)
