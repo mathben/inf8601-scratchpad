@@ -28,4 +28,5 @@ SUBDIRS += \
     24-omp-atomic \
     25-simd-base \
     26-simd-autovec \
-    27-race
+    27-race \
+    28-memcheck
