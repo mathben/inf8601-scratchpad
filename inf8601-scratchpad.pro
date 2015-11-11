@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    mpi \
     01-pthread-base \
     02-pthread-stack \
     03-pthread-recursive \
@@ -27,5 +28,4 @@ SUBDIRS += \
     24-omp-atomic \
     25-simd-base \
     26-simd-autovec \
-    mpi \
-    28-sanitize-race
+    27-race
