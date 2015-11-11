@@ -27,4 +27,5 @@ SUBDIRS += \
     24-omp-atomic \
     25-simd-base \
     26-simd-autovec \
-    mpi
+    mpi \
+    28-sanitize-race

@@ -60,8 +60,8 @@ int main(int argc, char *argv[])
 
     // ...but this variable must be valid at the time the lambda is called
     // don't do the following:
-    //auto f4 = make_func();
-    //f4(); // SIGSEGV
+    auto f4 = make_func();
+    f4(); // SIGSEGV
 
     // example of filter using lambda with argument and return
     QVector<int> data({0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
