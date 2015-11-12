@@ -29,4 +29,6 @@ SUBDIRS += \
     25-simd-base \
     26-simd-autovec \
     27-race \
-    28-memcheck
+    28-memcheck \
+    29-deadlock \
+    30-bitfields
