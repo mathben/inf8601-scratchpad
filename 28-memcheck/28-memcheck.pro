@@ -7,11 +7,11 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-# utilisation de MemorySanitizer
+# utilisation de AddressSanitizer
 #QMAKE_CXX = clang++
 #QMAKE_LINK = clang++
-#QMAKE_CXXFLAGS = -fsanitize=memory -fPIE
-#QMAKE_LIBS = -fsanitize=memory -pie
+#QMAKE_CXXFLAGS = -fsanitize=address
+#QMAKE_LIBS = -fsanitize=address
 
 SOURCES += main.cpp
 
