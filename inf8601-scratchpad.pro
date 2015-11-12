@@ -31,4 +31,5 @@ SUBDIRS += \
     27-race \
     28-memcheck \
     29-deadlock \
-    30-bitfields
+    30-bitfields \
+    31-static-check
