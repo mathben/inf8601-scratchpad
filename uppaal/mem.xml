@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>// Place global declarations here.
+int n;</declaration><template><name x="5" y="5">LoadStore</name><declaration>// Place local declarations here.
+clock x;
+int r;
+int k = 5;
+int i = 0;</declaration><location id="id0" x="-440" y="-240"><name x="-450" y="-270">done</name></location><location id="id1" x="-312" y="-240"><name x="-344" y="-216">branch</name><urgent/></location><location id="id2" x="-24" y="-240"><name x="-40" y="-216">store</name><urgent/></location><location id="id3" x="-24" y="-440"><name x="-34" y="-470">inc</name><urgent/></location><location id="id4" x="-312" y="-440"><name x="-336" y="-472">load</name><urgent/></location><init ref="id4"/><transition><source ref="id1"/><target ref="id0"/><label kind="guard" x="-400" y="-232">i == k</label></transition><transition><source ref="id1"/><target ref="id4"/><label kind="guard" x="-360" y="-352">i &lt; k</label></transition><transition><source ref="id2"/><target ref="id1"/><label kind="assignment" x="-184" y="-224">n = r,
+i++</label></transition><transition><source ref="id3"/><target ref="id2"/><label kind="assignment" x="-84" y="-340">r++</label></transition><transition><source ref="id4"/><target ref="id3"/><label kind="assignment" x="-192" y="-432">r = n</label></transition></template><system>// Place template instantiations here.
+l1 = LoadStore();
+l2 = LoadStore();
+
+// List one or more processes to be composed into a system.
+system l1, l2;</system></nta>
