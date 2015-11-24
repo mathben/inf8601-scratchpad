@@ -1,10 +1,9 @@
 #include <QCoreApplication>
 
-void saxpy_serial()
+void saxpy()
 {
 
 }
-
 
 int main(int argc, char *argv[])
 {

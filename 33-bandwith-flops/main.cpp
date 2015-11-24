@@ -8,15 +8,43 @@ struct BenchmarkItem {
     int size;
 };
 
-int main(int argc, char *argv[])
-{
-    (void) argc; (void) argv;
+/** FIXME: template */
+class Workload {
+    Workload(int flops, int data, int size, int nvec) {
+        m_ints.resize(nvec);
+        m_longs.resize(nvec);
+        m_floats.resize(nvec);
+        m_doubles.resize(nvec);
+        m_size = size;
+        m_flops = flops;
+        m_data = data;
+    }
+public:
+    void init() {
+        for (QVector<int> v: m_ints) { v.resize(m_size); qFill(v, 0); }
+        for (QVector<long> v: m_longs) { v.resize(m_size); qFill(v, 0); }
+        for (QVector<float> v: m_floats) { v.resize(m_size); qFill(v, 0); }
+        for (QVector<double> v: m_doubles) { v.resize(m_size); qFill(v, 0); }
+    }
+    virtual void before() { }
+    virtual void work() { }
+    virtual void after() { }
+protected:
+    QString m_name;
+    int m_size;
+    QVector<QVector<int> > m_ints;
+    QVector<QVector<long> > m_longs;
+    QVector<QVector<float> > m_floats;
+    QVector<QVector<double> > m_doubles;
+    int m_flops;
+    int m_data;
+};
 
-    int size = (1 << 26); // 128MB
-    QVector<float> v(size);
-
-    auto bw_load = [&]() {
-        tbb::parallel_for(tbb::blocked_range<int>(0, size),
+class LoadFloat : Workload {
+public:
+    void work() {
+        QVector<float> v = m_floats[0];
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
                     volatile float x = v[i];
@@ -24,33 +52,43 @@ int main(int argc, char *argv[])
                 }
             }
         );
-    };
+    }
+};
 
-    auto bw_store = [&]() {
-        tbb::parallel_for(tbb::blocked_range<int>(0, size),
+class StoreFloat : Workload {
+public:
+    void work() {
+        QVector<float> v = m_floats[0];
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
                     v[i] = 42;
                 }
             }
         );
-    };
+    }
+};
 
-    __m128 ps = _mm_set1_ps(3.1416);
-    auto bw_simd = [&]() {
-        tbb::parallel_for(tbb::blocked_range<int>(0, size / 4),
+class StoreFloatSIMD : Workload {
+public:
+    void work() {
+        QVector<float> v = m_floats[0];
+        __m128 ps = _mm_set1_ps(3.1416);
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
                     _mm_storeu_ps(v.data() + (i * 4), ps);
                 }
             }
         );
-    };
+    }
+};
 
-    float cst = 3.1416;
-    int nflops = (1 << 26);
-    auto fp_basic = [&]() {
-        tbb::parallel_for(tbb::blocked_range<int>(0, nflops),
+class MulFlops : Workload {
+public:
+    void work() {
+        float cst = 3.1416;
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
                     volatile float val = i * cst;
@@ -58,39 +96,79 @@ int main(int argc, char *argv[])
                 }
             }
         );
-    };
+    }
+};
 
-    __m128 cstv = _mm_set1_ps(cst);
-    auto fp_simd = [&]() {
-        tbb::parallel_for(tbb::blocked_range<int>(0, nflops / 4),
+class DivFlops : Workload {
+public:
+    void work() {
+        float cst = 3.1416;
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
-                    __m128 local = _mm_set1_ps(cst);
+                    volatile float val = i / cst;
+                    (void) val;
+                }
+            }
+        );
+    }
+};
+
+class SinFlops : Workload {
+public:
+    void work() {
+        float cst = 3.1416;
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
+            [&](tbb::blocked_range<int> &range) {
+                for (int i = range.begin(); i < range.end(); i++) {
+                    volatile float val = std::sin(i + cst);
+                    (void) val;
+                }
+            }
+        );
+    }
+};
+
+class MulFlopsSIMD : Workload {
+public:
+    void work() {
+        __m128 cstv = _mm_set1_ps(3.1416);
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
+            [&](tbb::blocked_range<int> &range) {
+                for (int i = range.begin(); i < range.end(); i++) {
+                    __m128 local = _mm_set1_ps(1.234);
                     volatile __m128 val = _mm_mul_ps(local, cstv);
                     (void) val;
                     (void) i;
                 }
             }
         );
-    };
+    }
+};
 
-    QVector<float> x(size);
-    QVector<float> y(size);
-    float a = 1.234;
-
-    auto saxpy_basic = [&]() {
-        tbb::parallel_for(tbb::blocked_range<int>(0, size),
+class SAXPYBasic: Workload {
+public:
+    void work() {
+        QVector<float> x = m_floats[0];
+        QVector<float> y = m_floats[1];
+        float a = 3.1416;
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
                     y[i] = a * x[i] + y[i];
                 }
             }
         );
-    };
+    }
+};
 
-    __m128 va = _mm_set1_ps(a);
-    auto saxpy_simd = [&]() {
-        tbb::parallel_for(tbb::blocked_range<int>(0, size / 4),
+class SAXPYSIMD: Workload {
+public:
+    void work() {
+        QVector<float> x = m_floats[0];
+        QVector<float> y = m_floats[1];
+        __m128 va = _mm_set1_ps(3.1416);
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
                     int id = i * 4;
@@ -102,9 +180,21 @@ int main(int argc, char *argv[])
                 }
             }
         );
-    };
+    }
+};
+
+// call the constructor with correct parameters
+// rate statistics: MB/s and flop/s (not only time)
+// workload: matrix multiplication with blocking
+// workload: loop fusion
+// mul, div, sin
+
+int main(int argc, char *argv[])
+{
+    (void) argc; (void) argv;
 
     QVector<BenchmarkItem> items = {
+        /*
         { "bw_load", bw_load, size },
         { "bw_store", bw_store, size },
         { "bw_simd", bw_simd, size },
@@ -112,6 +202,7 @@ int main(int argc, char *argv[])
         { "fp_simd", fp_simd, nflops },
         { "saxpy_basic", saxpy_basic, size },
         { "saxpy_simd", saxpy_simd, size },
+        */
     };
 
     Benchmark bench;
