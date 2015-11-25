@@ -18,7 +18,9 @@ CONFIG += C++11
 LIBS += -ltbb
 
 SOURCES += main.cpp \
-    benchmark.cpp
+    benchmark.cpp \
+    workload.cpp
 
 HEADERS += \
-    benchmark.h
+    benchmark.h \
+    workload.h

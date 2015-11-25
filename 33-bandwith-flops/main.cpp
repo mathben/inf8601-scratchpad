@@ -2,48 +2,13 @@
 #include "benchmark.h"
 #include <xmmintrin.h>
 
-struct BenchmarkItem {
-    QString name;
-    std::function<void ()> func;
-    int size;
-};
+#include "workload.h"
 
-/** FIXME: template */
-class Workload {
-    Workload(int flops, int data, int size, int nvec) {
-        m_ints.resize(nvec);
-        m_longs.resize(nvec);
-        m_floats.resize(nvec);
-        m_doubles.resize(nvec);
-        m_size = size;
-        m_flops = flops;
-        m_data = data;
-    }
+class LoadFloat : public Workload {
 public:
-    void init() {
-        for (QVector<int> v: m_ints) { v.resize(m_size); qFill(v, 0); }
-        for (QVector<long> v: m_longs) { v.resize(m_size); qFill(v, 0); }
-        for (QVector<float> v: m_floats) { v.resize(m_size); qFill(v, 0); }
-        for (QVector<double> v: m_doubles) { v.resize(m_size); qFill(v, 0); }
-    }
-    virtual void before() { }
-    virtual void work() { }
-    virtual void after() { }
-protected:
-    QString m_name;
-    int m_size;
-    QVector<QVector<int> > m_ints;
-    QVector<QVector<long> > m_longs;
-    QVector<QVector<float> > m_floats;
-    QVector<QVector<double> > m_doubles;
-    int m_flops;
-    int m_data;
-};
-
-class LoadFloat : Workload {
-public:
+    LoadFloat() : Workload("load_scalar", 0, sizeof(float), 1) { }
     void work() {
-        QVector<float> v = m_floats[0];
+        QVector<float> &v = m_floats[0];
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
@@ -55,10 +20,11 @@ public:
     }
 };
 
-class StoreFloat : Workload {
+class StoreFloat : public Workload {
 public:
+    StoreFloat() : Workload("store_scalar", 0, sizeof(float), 1) { }
     void work() {
-        QVector<float> v = m_floats[0];
+        QVector<float> &v = m_floats[0];
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
             [&](tbb::blocked_range<int> &range) {
                 for (int i = range.begin(); i < range.end(); i++) {
@@ -69,10 +35,27 @@ public:
     }
 };
 
-class StoreFloatSIMD : Workload {
+class LoadFloatSIMD : public Workload {
 public:
+    LoadFloatSIMD() : Workload("load_simd", 0, sizeof(float) * 4, 1) { }
     void work() {
-        QVector<float> v = m_floats[0];
+        QVector<float> &v = m_floats[0];
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
+            [&](tbb::blocked_range<int> &range) {
+                for (int i = range.begin(); i < range.end(); i++) {
+                    volatile __m128 ps = _mm_loadu_ps(v.data() + (i * 4));
+                    (void) ps;
+                }
+            }
+        );
+    }
+};
+
+class StoreFloatSIMD : public Workload {
+public:
+    StoreFloatSIMD() : Workload("store_simd", 0, sizeof(float) * 4, 1) { }
+    void work() {
+        QVector<float> &v = m_floats[0];
         __m128 ps = _mm_set1_ps(3.1416);
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
             [&](tbb::blocked_range<int> &range) {
@@ -84,8 +67,9 @@ public:
     }
 };
 
-class MulFlops : Workload {
+class MulFlops : public Workload {
 public:
+    MulFlops() : Workload("mul", 1, 0, 0) { }
     void work() {
         float cst = 3.1416;
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
@@ -99,8 +83,9 @@ public:
     }
 };
 
-class DivFlops : Workload {
+class DivFlops : public Workload {
 public:
+    DivFlops() : Workload("div", 1, 0, 0) { }
     void work() {
         float cst = 3.1416;
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
@@ -114,8 +99,9 @@ public:
     }
 };
 
-class SinFlops : Workload {
+class SinFlops : public Workload {
 public:
+    SinFlops() : Workload("sin", 1, 0, 0) { }
     void work() {
         float cst = 3.1416;
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
@@ -129,8 +115,9 @@ public:
     }
 };
 
-class MulFlopsSIMD : Workload {
+class MulFlopsSIMD : public Workload {
 public:
+    MulFlopsSIMD() : Workload("mul_simd", 4, 0, 0) { }
     void work() {
         __m128 cstv = _mm_set1_ps(3.1416);
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
@@ -146,11 +133,12 @@ public:
     }
 };
 
-class SAXPYBasic: Workload {
+class SAXPYScalar : public Workload {
 public:
+    SAXPYScalar() : Workload("saxpy", 2, sizeof(float) * 2, 2) { }
     void work() {
-        QVector<float> x = m_floats[0];
-        QVector<float> y = m_floats[1];
+        QVector<float> &x = m_floats[0];
+        QVector<float> &y = m_floats[1];
         float a = 3.1416;
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
             [&](tbb::blocked_range<int> &range) {
@@ -162,11 +150,12 @@ public:
     }
 };
 
-class SAXPYSIMD: Workload {
+class SAXPYSIMD : public Workload {
 public:
+    SAXPYSIMD() : Workload("saxpy_simd", 8, sizeof(float) * 2 * 4, 2) { }
     void work() {
-        QVector<float> x = m_floats[0];
-        QVector<float> y = m_floats[1];
+        QVector<float> &x = m_floats[0];
+        QVector<float> &y = m_floats[1];
         __m128 va = _mm_set1_ps(3.1416);
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
             [&](tbb::blocked_range<int> &range) {
@@ -183,32 +172,34 @@ public:
     }
 };
 
-// call the constructor with correct parameters
 // rate statistics: MB/s and flop/s (not only time)
 // workload: matrix multiplication with blocking
 // workload: loop fusion
-// mul, div, sin
 
 int main(int argc, char *argv[])
 {
     (void) argc; (void) argv;
 
-    QVector<BenchmarkItem> items = {
-        /*
-        { "bw_load", bw_load, size },
-        { "bw_store", bw_store, size },
-        { "bw_simd", bw_simd, size },
-        { "fp_basic", fp_basic, nflops },
-        { "fp_simd", fp_simd, nflops },
-        { "saxpy_basic", saxpy_basic, size },
-        { "saxpy_simd", saxpy_simd, size },
-        */
+    QVector<Workload*> items = {
+        new LoadFloat(),
+        new StoreFloat(),
+        new LoadFloatSIMD(),
+        new StoreFloatSIMD(),
+        new MulFlops(),
+        new MulFlopsSIMD(),
+        new DivFlops(),
+        new SinFlops(),
+        new SAXPYScalar(),
+        new SAXPYSIMD(),
     };
 
     Benchmark bench;
+    bench.setRepeat(10);
 
-    for (BenchmarkItem item : items) {
-        bench.run(item.name, item.func, item.size);
+    int size = 1 << 20;
+    for (Workload *item : items) {
+        item->m_size = size;
+        bench.run(item);
     }
 
     QString out("results.csv");
