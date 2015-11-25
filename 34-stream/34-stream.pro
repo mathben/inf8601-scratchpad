@@ -14,6 +14,7 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += -fopenmp
 QMAKE_CFLAGS += -fopenmp
 QMAKE_LFLAGS += -fopenmp
 

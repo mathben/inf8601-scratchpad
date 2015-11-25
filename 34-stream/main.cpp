@@ -40,11 +40,12 @@
 /*     program constitutes acceptance of these licensing restrictions.   */
 /*  5. Absolutely no warranty is expressed or implied.                   */
 /*-----------------------------------------------------------------------*/
-# include <stdio.h>
-# include <math.h>
-# include <float.h>
-# include <limits.h>
-# include <sys/time.h>
+#include <stdio.h>
+#include <math.h>
+#include <float.h>
+#include <limits.h>
+#include <sys/time.h>
+#include <omp.h>
 
 /* INSTRUCTIONS:
  *
