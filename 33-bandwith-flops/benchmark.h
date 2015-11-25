@@ -25,8 +25,12 @@ public:
 
     int repeat() { return m_repeat; }
     void setRepeat(int repeat) { m_repeat = repeat; }
-    QMap<QString, QMap<int, double> > getMeans() { return m_means; }
-    void csv(QString &path);
+
+    void csv(const char *path, QMap<QString, QMap<int, double> > &data);
+
+    QMap<QString, QMap<int, double> > m_ts;
+    QMap<QString, QMap<int, double> > m_bw;
+    QMap<QString, QMap<int, double> > m_fp;
 
 signals:
 
@@ -34,7 +38,6 @@ public slots:
 
 private:
     int m_repeat;
-    QMap<QString, QMap<int, double> > m_means;
 };
 
 #endif // BENCHMARK_H

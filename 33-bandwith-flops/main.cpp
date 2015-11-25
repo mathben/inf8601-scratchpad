@@ -35,9 +35,42 @@ public:
     }
 };
 
+class CopyFloat : public Workload {
+public:
+    CopyFloat() : Workload("copy_scalar", 0, sizeof(float) * 2, 2) { }
+    void work() {
+        QVector<float> &src = m_floats[0];
+        QVector<float> &dst = m_floats[1];
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size),
+            [&](tbb::blocked_range<int> &range) {
+                for (int i = range.begin(); i < range.end(); i++) {
+                    dst[i] = src[i];
+                }
+            }
+        );
+    }
+};
+
+class CopyFloatSIMD : public Workload {
+public:
+    CopyFloatSIMD() : Workload("copy_simd", 0, sizeof(float) * 2, 2) { }
+    void work() {
+        QVector<float> &src = m_floats[0];
+        QVector<float> &dst = m_floats[1];
+        tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
+            [&](tbb::blocked_range<int> &range) {
+                for (int i = range.begin(); i < range.end(); i++) {
+                    __m128 ps = _mm_loadu_ps(src.data() + (i * 4));
+                    _mm_storeu_ps(dst.data() + (i * 4), ps);
+                }
+            }
+        );
+    }
+};
+
 class LoadFloatSIMD : public Workload {
 public:
-    LoadFloatSIMD() : Workload("load_simd", 0, sizeof(float) * 4, 1) { }
+    LoadFloatSIMD() : Workload("load_simd", 0, sizeof(float), 1) { }
     void work() {
         QVector<float> &v = m_floats[0];
         tbb::parallel_for(tbb::blocked_range<int>(0, m_size / 4),
@@ -53,7 +86,7 @@ public:
 
 class StoreFloatSIMD : public Workload {
 public:
-    StoreFloatSIMD() : Workload("store_simd", 0, sizeof(float) * 4, 1) { }
+    StoreFloatSIMD() : Workload("store_simd", 0, sizeof(float), 1) { }
     void work() {
         QVector<float> &v = m_floats[0];
         __m128 ps = _mm_set1_ps(3.1416);
@@ -135,7 +168,7 @@ public:
 
 class SAXPYScalar : public Workload {
 public:
-    SAXPYScalar() : Workload("saxpy", 2, sizeof(float) * 2, 2) { }
+    SAXPYScalar() : Workload("saxpy", 2, sizeof(float) * 3, 2) { }
     void work() {
         QVector<float> &x = m_floats[0];
         QVector<float> &y = m_floats[1];
@@ -152,7 +185,7 @@ public:
 
 class SAXPYSIMD : public Workload {
 public:
-    SAXPYSIMD() : Workload("saxpy_simd", 8, sizeof(float) * 2 * 4, 2) { }
+    SAXPYSIMD() : Workload("saxpy_simd", 2, sizeof(float) * 3, 2) { }
     void work() {
         QVector<float> &x = m_floats[0];
         QVector<float> &y = m_floats[1];
@@ -185,6 +218,8 @@ int main(int argc, char *argv[])
         new StoreFloat(),
         new LoadFloatSIMD(),
         new StoreFloatSIMD(),
+        new CopyFloat(),
+        new CopyFloatSIMD(),
         new MulFlops(),
         new MulFlopsSIMD(),
         new DivFlops(),
@@ -202,8 +237,9 @@ int main(int argc, char *argv[])
         bench.run(item);
     }
 
-    QString out("results.csv");
-    bench.csv(out);
+    bench.csv("ts.csv", bench.m_ts);
+    bench.csv("bw.csv", bench.m_bw);
+    bench.csv("fp.csv", bench.m_fp);
 
     return 0;
 }

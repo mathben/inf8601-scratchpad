@@ -22,7 +22,7 @@ public:
     QVector<QVector<float> > m_floats;
     QVector<QVector<double> > m_doubles;
     int m_flops;
-    int m_data;
+    int m_bytes;
     int m_nvec;
 };
 

@@ -11,8 +11,10 @@ void Benchmark::run(Workload *item)
     QElapsedTimer clock;
     int ncpus = tbb::task_scheduler_init::default_num_threads();
     QVector<qint64> samples;
-    item->init();
+    qint64 base_size = item->m_size;
     for (int cpus = 1; cpus <= ncpus; cpus++) {
+        item->m_size = base_size * cpus;
+        item->init();
         samples.clear();
         tbb::task_scheduler_init sched(cpus);
         item->before();
@@ -28,30 +30,38 @@ void Benchmark::run(Workload *item)
         }
         item->after();
         double sum = std::accumulate(samples.begin(), samples.end(), 0.0);
-        double mean = (sum / samples.size()) / item->m_size;
+        double mean = (sum / samples.size());
+
+        double ts = mean / item->m_size;
+        double bw = item->m_bytes * item->m_size / (mean / 1E9);
+        double fp = item->m_flops * item->m_size / (mean / 1E9);
+
         //double sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
         //double stdev = std::sqrt(sq_sum / v.size() - mean * mean);
         qDebug() << item->m_name << cpus << samples.size() << mean;
-        m_means[item->m_name][cpus] = mean;
+        m_ts[item->m_name][cpus] = ts;
+        m_bw[item->m_name][cpus] = bw;
+        m_fp[item->m_name][cpus] = fp;
     }
     item->teardown();
 }
 
-void Benchmark::csv(QString &path)
+void Benchmark::csv(const char *path, QMap<QString, QMap<int, double> > &data)
 {
-    int ncpus = tbb::task_scheduler_init::default_num_threads();
-    QFile data(path);
-    if (data.open(QFile::WriteOnly | QFile::Truncate)) {
-        QTextStream out(&data);
+    QFile file(path);
+    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream out(&file);
         out << "cores,";
-        for (QString name : m_means.keys()) {
+        for (const QString name : data.keys()) {
             out << name << ",";
         }
         out << "\n";
-        for (int i = 1; i <= ncpus; i++) {
+
+        QList<int> ncpus = data[data.firstKey()].keys();
+        for (const int i : ncpus) {
             out << i << ",";
-            for (QString name : m_means.keys()) {
-                out << m_means[name][i] << ",";
+            for (const QString name : data.keys()) {
+                out << data[name][i] << ",";
             }
             out << "\n";
         }

@@ -3,7 +3,7 @@
 Workload::Workload(const char *name, int flops, int data, int nvec)
 {
     m_flops = flops;
-    m_data = data;
+    m_bytes = data;
     m_name = name;
     m_nvec = nvec;
 }
