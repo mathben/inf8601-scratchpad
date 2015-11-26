@@ -205,7 +205,6 @@ public:
     }
 };
 
-// rate statistics: MB/s and flop/s (not only time)
 // workload: matrix multiplication with blocking
 // workload: loop fusion
 
