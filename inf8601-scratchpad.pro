@@ -37,4 +37,5 @@ SUBDIRS += \
     32-arithmetic-intensity \
     33-bandwith-flops \
     34-stream \
-    35-roofline
+    35-roofline \
+    36-cache-size
