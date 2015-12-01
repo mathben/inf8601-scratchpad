@@ -38,6 +38,7 @@ void mean3_tbb(QVector<float> &m, const QVector<float> &x)
     );
 }
 
+/* Auteur: Valentin Vendengeon */
 void mean_simd_tbb(QVector<float> &m, const QVector<float> &x)
 {
     float f = 1/3.0f;
